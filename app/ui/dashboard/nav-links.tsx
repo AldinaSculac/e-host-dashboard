@@ -1,46 +1,51 @@
 'use client';
 
-import {
-  UserGroupIcon,
-  HomeIcon,
-  DocumentDuplicateIcon,
-} from '@heroicons/react/24/outline';
+import { ChevronRightIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
+import { Apartment } from '@/app/lib/definitions';
 
-// Map of links to display in the side navigation.
-// Depending on the size of the application, this would be stored in a database.
-const links = [
-  { name: 'Home', href: '/dashboard', icon: HomeIcon },
-  // {
-  //   name: 'Invoices',
-  //   href: '/dashboard/invoices',
-  //   icon: DocumentDuplicateIcon,
-  // },
-  // { name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon },
-];
+// TODO: display apts on mobile
 
-export default function NavLinks() {
+type NavLinksProps = {
+  apartments: Apartment[];
+};
+
+export default function NavLinks({ apartments }: NavLinksProps) {
   const pathname = usePathname();
 
   return (
     <>
-      {links.map((link) => {
-        const LinkIcon = link.icon;
+      <Link
+        key="dashboard"
+        href="/dashboard"
+        className={clsx(
+          'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-cyan-600 md:flex-none md:justify-start md:p-2 md:px-3',
+          {
+            'bg-sky-100 text-cyan-600': pathname === '/dashboard',
+          }
+        )}
+      >
+        <Squares2X2Icon className="w-6" />
+        <p className="hidden md:block truncate">Dashboard</p>
+      </Link>
+
+      {apartments.map((apartment: Apartment) => {
         return (
           <Link
-            key={link.name}
-            href={link.href}
+            key={apartment.name}
+            href={`/dashboard/${apartment.id}`}
             className={clsx(
               'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-cyan-600 md:flex-none md:justify-start md:p-2 md:px-3',
               {
-                'bg-sky-100 text-cyan-600': pathname === link.href,
+                'bg-sky-100 text-cyan-600':
+                  pathname === `/dashboard/${apartment.id}`,
               }
             )}
           >
-            <LinkIcon className="w-6" />
-            <p className="hidden md:block">{link.name}</p>
+            <ChevronRightIcon className="w-6" />
+            <p className="hidden md:block truncate">{apartment.name}</p>
           </Link>
         );
       })}

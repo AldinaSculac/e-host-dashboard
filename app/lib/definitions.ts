@@ -9,6 +9,30 @@ export type User = {
   password: string;
 };
 
+export type Apartment = {
+  id: string;
+  name: string;
+  description: string;
+  user_id: string;
+  created_at: Date;
+  updated_at: Date;
+};
+
+export type Category = {
+  id: string;
+  name: string;
+};
+
+export type Note = {
+  id: string;
+  title: string;
+  description: string;
+  apartment_id: string;
+  category_id: string;
+  created_at: Date;
+  updated_at: Date;
+};
+
 export type Customer = {
   id: string;
   name: string;
