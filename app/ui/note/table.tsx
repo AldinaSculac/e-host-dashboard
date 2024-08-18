@@ -1,11 +1,12 @@
-import { Note } from '@/app/lib/definitions';
-import React from 'react';
+import { fetchNotes } from '@/app/lib/data';
 
 type NotesProps = {
-  notes?: Note[];
+  apartmentId: string;
 };
 
-export default function NoteTable({ notes }: NotesProps) {
+export default async function NoteTable({ apartmentId }: NotesProps) {
+  const notes = await fetchNotes(apartmentId);
+
   return (
     <div>
       <h2 className="text-lg mb-2 md:text-xl">Notes</h2>

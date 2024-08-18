@@ -1,12 +1,12 @@
-import { Apartment } from '@/app/lib/definitions';
-import React from 'react';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import { fetchApartment } from '@/app/lib/data';
 
 type ApartmentProps = {
-  apartment?: Apartment;
+  apartmentId: string;
 };
 
-export default function ApartmentCard({ apartment }: ApartmentProps) {
+export default async function ApartmentCard({ apartmentId }: ApartmentProps) {
+  const apartment = await fetchApartment(apartmentId);
   const createdAt = apartment?.created_at.toLocaleDateString();
   const updatedAt = apartment?.updated_at.toLocaleDateString();
 
