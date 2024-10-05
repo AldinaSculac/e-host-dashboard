@@ -6,9 +6,8 @@ import {
   InvoiceForm,
   InvoicesTable,
   LatestInvoiceRaw,
-  Revenue,
   Apartment,
-  Note,
+  NoteTable,
 } from './definitions';
 import { formatCurrency } from './utils';
 
@@ -36,8 +35,22 @@ export async function fetchApartment(apartmentId: string) {
 
 export async function fetchNotes(apartmentId: string) {
   try {
-    const data =
-      await sql<Note>`SELECT * FROM notes WHERE apartment_id=${apartmentId}`;
+    const data = await sql<NoteTable>`
+      SELECT 
+        notes.id, 
+        notes.title, 
+        notes.created_at, 
+        notes.updated_at, 
+        categories.name AS category_name
+      FROM 
+        notes
+      JOIN 
+        categories 
+      ON 
+        notes.category_id = categories.id
+      WHERE 
+        notes.apartment_id = ${apartmentId};
+    `;
     return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -69,25 +82,6 @@ export async function fetchCardData(userId: string) {
 }
 
 ////////////////////////////////////
-export async function fetchRevenue() {
-  try {
-    // Artificially delay a response for demo purposes.
-    // Don't do this in production :)
-
-    // console.log('Fetching revenue data...');
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    const data = await sql<Revenue>`SELECT * FROM revenue`;
-
-    // console.log('Data fetch completed after 3 seconds.');
-
-    return data.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch revenue data.');
-  }
-}
-
 export async function fetchLatestInvoices() {
   try {
     const data = await sql<LatestInvoiceRaw>`

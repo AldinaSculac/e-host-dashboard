@@ -33,6 +33,15 @@ export type Note = {
   updated_at: Date;
 };
 
+export type NoteTable = {
+  id: string;
+  title: string;
+  category_name: string;
+  created_at: Date;
+  updated_at: Date;
+};
+
+/////////////////////////
 export type Customer = {
   id: string;
   name: string;
