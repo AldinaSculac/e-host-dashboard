@@ -1,15 +1,19 @@
-import { fetchNotes } from '@/app/lib/data';
+import { fetchFilteredNotes } from '@/app/lib/data';
 import { formatDateToLocal } from '@/app/lib/utils';
 import { DeleteNote, UpdateNote } from './buttons';
 
 type NotesProps = {
   apartmentId: string;
+  query: string;
+  currentPage: number;
 };
 
-export default async function NoteTable({ apartmentId }: NotesProps) {
-  const notes = await fetchNotes(apartmentId);
-
-  // const invoices = await fetchFilteredInvoices(query, currentPage);
+export default async function NoteTable({
+  apartmentId,
+  query,
+  currentPage,
+}: NotesProps) {
+  const notes = await fetchFilteredNotes(apartmentId, query, currentPage);
 
   return (
     <div className="mt-6 flow-root">

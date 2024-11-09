@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
 import ApartmentCard from '@/app/ui/apartment/apartment-card';
 import { ApartmentCardSkeleton, NoteTableSkeleton } from '@/app/ui/skeletons';
-import Table from '@/app/ui/note/table';
+import NoteTable from '@/app/ui/note/table';
 import Search from '@/app/ui/search';
 import { CreateNote } from '@/app/ui/note/buttons';
-import Pagination from '@/app/ui/invoices/pagination';
-import { fetchInvoicesPages } from '@/app/lib/data';
+import Pagination from '@/app/ui/note/pagination';
+import { fetchNotesPages } from '@/app/lib/data';
 
 export default async function Page({
   params,
@@ -24,7 +24,7 @@ export default async function Page({
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
 
-  const totalPages = await fetchInvoicesPages(query);
+  const totalPages = await fetchNotesPages(apartmentId, query);
 
   return (
     <main>
@@ -40,12 +40,13 @@ export default async function Page({
         <Search placeholder="Search notes..." />
         <CreateNote apartmentId={apartmentId} />
       </div>
-      <Suspense fallback={<NoteTableSkeleton />}>
-        <Table apartmentId={apartmentId} />
+      <Suspense key={query + currentPage} fallback={<NoteTableSkeleton />}>
+        <NoteTable
+          apartmentId={apartmentId}
+          query={query}
+          currentPage={currentPage}
+        />
       </Suspense>
-      {/* <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
-        <Table query={query} currentPage={currentPage} />
-      </Suspense> */}
       <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />
       </div>

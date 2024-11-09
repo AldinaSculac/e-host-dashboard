@@ -81,6 +81,63 @@ export async function fetchCardData(userId: string) {
   }
 }
 
+const ITEMS_PER_PAGE = 6;
+export async function fetchFilteredNotes(
+  apartmentId: string,
+  query: string,
+  currentPage: number
+) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  // search by date?
+  try {
+    const data = await sql<NoteTable>`
+      SELECT 
+        notes.id, 
+        notes.title, 
+        notes.created_at, 
+        notes.updated_at, 
+        categories.name AS category_name
+      FROM 
+        notes
+      JOIN 
+        categories 
+      ON 
+        notes.category_id = categories.id
+      WHERE 
+        notes.apartment_id = ${apartmentId} AND
+        (notes.title ILIKE ${`%${query}%`} OR
+        categories.name ILIKE ${`%${query}%`})
+        ORDER BY notes.created_at DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch notes.');
+  }
+}
+
+// 2c0895b7-cc14-4f76-8d3e-c7d6e109021a
+export async function fetchNotesPages(apartmentId: string, query: string) {
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM notes
+    JOIN categories ON notes.category_id = categories.id
+    WHERE 
+      notes.apartment_id = ${apartmentId} AND
+      (notes.title ILIKE ${`%${query}%`} OR
+      categories.name ILIKE ${`%${query}%`})
+  `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of notes.');
+  }
+}
+
 ////////////////////////////////////
 export async function fetchLatestInvoices() {
   try {
@@ -102,7 +159,6 @@ export async function fetchLatestInvoices() {
   }
 }
 
-const ITEMS_PER_PAGE = 6;
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number
