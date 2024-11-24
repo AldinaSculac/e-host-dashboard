@@ -18,6 +18,12 @@ export type Apartment = {
   updated_at: Date;
 };
 
+export type ApartmentForm = {
+  id: string;
+  name: string;
+  description: string;
+};
+
 export type Category = {
   id: string;
   name: string;

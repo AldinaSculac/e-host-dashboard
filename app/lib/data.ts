@@ -14,7 +14,7 @@ import { formatCurrency } from './utils';
 export async function fetchApartments(userId: string) {
   try {
     const data =
-      await sql<Apartment>`SELECT id, name FROM apartments WHERE user_id=${userId}`;
+      await sql<Apartment>`SELECT id, name FROM apartments WHERE user_id=${userId} ORDER BY created_at`;
     return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -25,7 +25,7 @@ export async function fetchApartments(userId: string) {
 export async function fetchApartment(apartmentId: string) {
   try {
     const data =
-      await sql<Apartment>`SELECT name, description, created_at, updated_at FROM apartments WHERE id=${apartmentId}`;
+      await sql<Apartment>`SELECT id, name, description, created_at, updated_at FROM apartments WHERE id=${apartmentId}`;
     return data.rows[0];
   } catch (error) {
     console.error('Database Error:', error);
@@ -88,7 +88,7 @@ export async function fetchFilteredNotes(
   currentPage: number
 ) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-  // search by date?
+  // TODO: search by date?
   try {
     const data = await sql<NoteTable>`
       SELECT 
@@ -118,7 +118,6 @@ export async function fetchFilteredNotes(
   }
 }
 
-// 2c0895b7-cc14-4f76-8d3e-c7d6e109021a
 export async function fetchNotesPages(apartmentId: string, query: string) {
   try {
     const count = await sql`SELECT COUNT(*)
