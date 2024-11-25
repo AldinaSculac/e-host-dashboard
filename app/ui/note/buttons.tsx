@@ -1,5 +1,6 @@
 import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { deleteNote } from '@/app/lib/actions';
 
 export function CreateNote({ apartmentId }: { apartmentId: string }) {
   return (
@@ -13,10 +14,16 @@ export function CreateNote({ apartmentId }: { apartmentId: string }) {
   );
 }
 
-export function UpdateNote({ id }: { id: string }) {
+export function UpdateNote({
+  noteId,
+  apartmentId,
+}: {
+  noteId: string;
+  apartmentId: string;
+}) {
   return (
     <Link
-      href="/dashboard/invoices"
+      href={`/dashboard/${apartmentId}/notes/${noteId}/edit`}
       className="rounded-md border p-2 hover:bg-gray-100"
     >
       <PencilIcon className="w-5" />
@@ -24,13 +31,22 @@ export function UpdateNote({ id }: { id: string }) {
   );
 }
 
-export function DeleteNote({ id }: { id: string }) {
+export function DeleteNote({
+  noteId,
+  apartmentId,
+}: {
+  noteId: string;
+  apartmentId: string;
+}) {
+  // We cannot pass the id as an argument to the Server Action, we need to use JS bind
+  const deleteNoteWithId = deleteNote.bind(null, noteId, apartmentId);
+
   return (
-    <>
-      <button className="rounded-md border p-2 hover:bg-gray-100">
+    <form action={deleteNoteWithId}>
+      <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">
         <span className="sr-only">Delete</span>
         <TrashIcon className="w-5" />
       </button>
-    </>
+    </form>
   );
 }

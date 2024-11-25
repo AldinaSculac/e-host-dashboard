@@ -1,5 +1,5 @@
 import Form from '@/app/ui/apartment/create-form';
-import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
+import Breadcrumbs from '@/app/ui/breadcrumbs';
 
 export default async function Page() {
   return (

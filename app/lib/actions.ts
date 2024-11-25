@@ -4,7 +4,7 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-const FormSchema = z.object({
+const ApartmentFormSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
@@ -13,15 +13,32 @@ const FormSchema = z.object({
   updated_at: z.string(),
 });
 
-const CreateApartment = FormSchema.omit({
+const NoteFormSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  apartment_id: z.string(),
+  category_id: z.string(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
+const Apartment = ApartmentFormSchema.omit({
   id: true,
   user_id: true,
   created_at: true,
   updated_at: true,
 });
 
+const Note = NoteFormSchema.omit({
+  id: true,
+  apartment_id: true,
+  created_at: true,
+  updated_at: true,
+});
+
 export async function createApartment(formData: FormData) {
-  const { name, description } = CreateApartment.parse({
+  const { name, description } = Apartment.parse({
     name: formData.get('name'),
     description: formData.get('description'),
   });
@@ -40,15 +57,8 @@ export async function createApartment(formData: FormData) {
   redirect(`/dashboard/${id}`);
 }
 
-const UpdateApartment = FormSchema.omit({
-  id: true,
-  user_id: true,
-  created_at: true,
-  updated_at: true,
-});
-
 export async function updateApartment(id: string, formData: FormData) {
-  const { name, description } = UpdateApartment.parse({
+  const { name, description } = Apartment.parse({
     name: formData.get('name'),
     description: formData.get('description'),
   });
@@ -61,12 +71,57 @@ export async function updateApartment(id: string, formData: FormData) {
     WHERE id = ${id}
   `;
 
-  revalidatePath(`/dashboard/${id}`);
   redirect(`/dashboard/${id}`);
 }
 
 export async function deleteApartment(id: string) {
+  // delete all notes associated with the apartment
+  await sql`DELETE FROM notes WHERE apartment_id = ${id}`;
+
+  // delete the apartment
   await sql`DELETE FROM apartments WHERE id = ${id}`;
-  revalidatePath('/dashboard');
   redirect(`/dashboard`);
+}
+
+export async function createNote(id: string, formData: FormData) {
+  const { title, description, category_id } = Note.parse({
+    title: formData.get('title'),
+    description: formData.get('description'),
+    category_id: formData.get('categoryId'),
+  });
+  const created_at = new Date().toISOString().split('T')[0];
+
+  await sql`
+    INSERT INTO notes (title, description, apartment_id, category_id, created_at)
+    VALUES (${title}, ${description}, ${id}, ${category_id}, ${created_at})`;
+
+  redirect(`/dashboard/${id}`);
+}
+
+export async function updateNote(
+  noteId: string,
+  apartmentId: string,
+  formData: FormData
+) {
+  const { title, description, category_id } = Note.parse({
+    title: formData.get('title'),
+    description: formData.get('description'),
+    category_id: formData.get('categoryId'),
+  });
+
+  const updated_at = new Date().toISOString().split('T')[0];
+
+  await sql`
+    UPDATE notes
+    SET title = ${title}, description = ${description}, category_id = ${category_id}, updated_at = ${updated_at}
+    WHERE id = ${noteId}
+  `;
+
+  redirect(`/dashboard/${apartmentId}`);
+}
+
+export async function deleteNote(noteId: string, apartmentId: string) {
+  await sql`DELETE FROM notes WHERE id = ${noteId}`;
+
+  revalidatePath(`/dashboard/${apartmentId}`);
 }

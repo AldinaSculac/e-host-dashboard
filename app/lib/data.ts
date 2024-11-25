@@ -8,13 +8,14 @@ import {
   LatestInvoiceRaw,
   Apartment,
   NoteTable,
+  Note,
 } from './definitions';
 import { formatCurrency } from './utils';
 
 export async function fetchApartments(userId: string) {
   try {
     const data =
-      await sql<Apartment>`SELECT id, name FROM apartments WHERE user_id=${userId} ORDER BY created_at`;
+      await sql<Apartment>`SELECT id, name FROM apartments WHERE user_id=${userId} ORDER BY created_at ASC`;
     return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -30,6 +31,16 @@ export async function fetchApartment(apartmentId: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch apartment details.');
+  }
+}
+
+export async function fetchCategories() {
+  try {
+    const data = await sql<Apartment>`SELECT id, name FROM categories`;
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch categories.');
   }
 }
 
@@ -55,6 +66,33 @@ export async function fetchNotes(apartmentId: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch notes.');
+  }
+}
+
+export async function fetchNote(id: string) {
+  try {
+    const data = await sql<Note>`
+      SELECT 
+        notes.id, 
+        notes.title, 
+        notes.description, 
+        notes.apartment_id,
+        notes.created_at, 
+        notes.updated_at, 
+        categories.name AS category_name
+      FROM 
+        notes
+      JOIN 
+        categories 
+      ON 
+        notes.category_id = categories.id
+      WHERE 
+        notes.id = ${id};
+    `;
+    return data.rows[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch note.');
   }
 }
 

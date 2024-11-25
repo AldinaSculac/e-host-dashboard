@@ -38,8 +38,8 @@ export default async function NoteTable({
                     </p>
                   </div>
                   <div className="flex justify-end gap-2">
-                    <UpdateNote id={note.id} />
-                    <DeleteNote id={note.id} />
+                    <UpdateNote noteId={note.id} apartmentId={apartmentId} />
+                    <DeleteNote noteId={note.id} apartmentId={apartmentId} />
                   </div>
                 </div>
               </div>
@@ -79,8 +79,8 @@ export default async function NoteTable({
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <UpdateNote id={note.id} />
-                      <DeleteNote id={note.id} />
+                      <UpdateNote noteId={note.id} apartmentId={apartmentId} />
+                      <DeleteNote noteId={note.id} apartmentId={apartmentId} />
                     </div>
                   </td>
                 </tr>
