@@ -44,31 +44,6 @@ export async function fetchCategories() {
   }
 }
 
-export async function fetchNotes(apartmentId: string) {
-  try {
-    const data = await sql<NoteTable>`
-      SELECT 
-        notes.id, 
-        notes.title, 
-        notes.created_at, 
-        notes.updated_at, 
-        categories.name AS category_name
-      FROM 
-        notes
-      JOIN 
-        categories 
-      ON 
-        notes.category_id = categories.id
-      WHERE 
-        notes.apartment_id = ${apartmentId};
-    `;
-    return data.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch notes.');
-  }
-}
-
 export async function fetchNote(id: string) {
   try {
     const data = await sql<Note>`

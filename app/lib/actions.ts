@@ -45,15 +45,28 @@ export async function createApartment(formData: FormData) {
   const created_at = new Date().toISOString().split('T')[0];
   const user_id = '410544b2-4001-4271-9855-fec4b6a6442a'; // TODO: get correct userId
 
-  const result = await sql`
-    INSERT INTO apartments (name, description, user_id, created_at)
-    VALUES (${name}, ${description}, ${user_id}, ${created_at})
-    RETURNING id
-  `;
+  let result;
+
+  try {
+    result = await sql`
+      INSERT INTO apartments (name, description, user_id, created_at)
+      VALUES (${name}, ${description}, ${user_id}, ${created_at})
+      RETURNING id
+    `;
+  } catch (error) {
+    return {
+      message: 'Failed to create apartment.',
+    };
+  }
+
+  if (!result.rows || result.rows.length === 0) {
+    return {
+      message: 'Failed to retrieve created apartment ID.',
+    };
+  }
 
   const apartment = result.rows[0];
   const id = apartment.id;
-
   redirect(`/dashboard/${id}`);
 }
 
@@ -65,21 +78,31 @@ export async function updateApartment(id: string, formData: FormData) {
 
   const updated_at = new Date().toISOString().split('T')[0];
 
-  await sql`
-    UPDATE apartments
-    SET name = ${name}, description = ${description}, updated_at = ${updated_at}
-    WHERE id = ${id}
-  `;
+  try {
+    await sql`
+      UPDATE apartments
+      SET name = ${name}, description = ${description}, updated_at = ${updated_at}
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return {
+      message: 'Failed to update apartment.',
+    };
+  }
 
   redirect(`/dashboard/${id}`);
 }
 
 export async function deleteApartment(id: string) {
-  // delete all notes associated with the apartment
-  await sql`DELETE FROM notes WHERE apartment_id = ${id}`;
+  try {
+    // delete all notes associated with the apartment
+    await sql`DELETE FROM notes WHERE apartment_id = ${id}`;
 
-  // delete the apartment
-  await sql`DELETE FROM apartments WHERE id = ${id}`;
+    // delete the apartment
+    await sql`DELETE FROM apartments WHERE id = ${id}`;
+  } catch (error) {
+    return { message: 'Failed to delete apartment.' };
+  }
   redirect(`/dashboard`);
 }
 
@@ -91,9 +114,15 @@ export async function createNote(id: string, formData: FormData) {
   });
   const created_at = new Date().toISOString().split('T')[0];
 
-  await sql`
-    INSERT INTO notes (title, description, apartment_id, category_id, created_at)
-    VALUES (${title}, ${description}, ${id}, ${category_id}, ${created_at})`;
+  try {
+    await sql`
+      INSERT INTO notes (title, description, apartment_id, category_id, created_at)
+      VALUES (${title}, ${description}, ${id}, ${category_id}, ${created_at})`;
+  } catch (error) {
+    return {
+      message: 'Failed to create note.',
+    };
+  }
 
   redirect(`/dashboard/${id}`);
 }
@@ -111,17 +140,27 @@ export async function updateNote(
 
   const updated_at = new Date().toISOString().split('T')[0];
 
-  await sql`
+  try {
+    await sql`
     UPDATE notes
     SET title = ${title}, description = ${description}, category_id = ${category_id}, updated_at = ${updated_at}
     WHERE id = ${noteId}
   `;
+  } catch (error) {
+    return {
+      message: 'Failed to update note.',
+    };
+  }
 
   redirect(`/dashboard/${apartmentId}`);
 }
 
 export async function deleteNote(noteId: string, apartmentId: string) {
-  await sql`DELETE FROM notes WHERE id = ${noteId}`;
-
-  revalidatePath(`/dashboard/${apartmentId}`);
+  try {
+    await sql`DELETE FROM notes WHERE id = ${noteId}`;
+    revalidatePath(`/dashboard/${apartmentId}`);
+    return { message: 'Deleted note.' };
+  } catch (error) {
+    return { message: 'Failed to delete note.' };
+  }
 }

@@ -1,7 +1,5 @@
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import { fetchApartment } from '@/app/lib/data';
 import { DeleteApartment, EditApartment } from './buttons';
-import Link from 'next/link';
 
 type ApartmentProps = {
   apartmentId: string;
