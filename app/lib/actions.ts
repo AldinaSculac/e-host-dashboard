@@ -28,6 +28,9 @@ const Apartment = ApartmentFormSchema.omit({
   user_id: true,
   created_at: true,
   updated_at: true,
+}).extend({
+  name: z.string().min(1, 'Apartment name is required.'),
+  description: z.string().min(1, 'Apartment description is required.'),
 });
 
 const Note = NoteFormSchema.omit({
@@ -37,11 +40,31 @@ const Note = NoteFormSchema.omit({
   updated_at: true,
 });
 
-export async function createApartment(formData: FormData) {
-  const { name, description } = Apartment.parse({
+export type StateApartment = {
+  errors?: {
+    name?: string[];
+    description?: string[];
+  };
+  message?: string | null;
+};
+
+export async function createApartment(
+  prevState: StateApartment,
+  formData: FormData
+) {
+  const validatedFields = Apartment.safeParse({
     name: formData.get('name'),
     description: formData.get('description'),
   });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to create an apartment.',
+    };
+  }
+
+  const { name, description } = validatedFields.data;
   const created_at = new Date().toISOString().split('T')[0];
   const user_id = '410544b2-4001-4271-9855-fec4b6a6442a'; // TODO: get correct userId
 
@@ -55,7 +78,7 @@ export async function createApartment(formData: FormData) {
     `;
   } catch (error) {
     return {
-      message: 'Failed to create apartment.',
+      message: 'Failed to create an apartment.',
     };
   }
 
@@ -70,12 +93,24 @@ export async function createApartment(formData: FormData) {
   redirect(`/dashboard/${id}`);
 }
 
-export async function updateApartment(id: string, formData: FormData) {
-  const { name, description } = Apartment.parse({
+export async function updateApartment(
+  id: string,
+  prevState: StateApartment,
+  formData: FormData
+) {
+  const validatedFields = Apartment.safeParse({
     name: formData.get('name'),
     description: formData.get('description'),
   });
 
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to update an apartment.',
+    };
+  }
+
+  const { name, description } = validatedFields.data;
   const updated_at = new Date().toISOString().split('T')[0];
 
   try {
@@ -90,6 +125,7 @@ export async function updateApartment(id: string, formData: FormData) {
     };
   }
 
+  revalidatePath(`/dashboard/${id}`);
   redirect(`/dashboard/${id}`);
 }
 

@@ -1,15 +1,23 @@
+'use client';
+
 import Link from 'next/link';
 import { HomeModernIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
-import { updateApartment } from '@/app/lib/actions';
+import { updateApartment, StateApartment } from '@/app/lib/actions';
 import { ApartmentForm } from '@/app/lib/definitions';
+import { useActionState } from 'react';
 
 export default function Form({ apartment }: { apartment: ApartmentForm }) {
   // We cannot pass the id as an argument to the Server Action, we need to use JS bind
+  const initialState: StateApartment = { message: null, errors: {} };
   const updateApartmentWithId = updateApartment.bind(null, apartment.id);
+  const [state, formAction] = useActionState(
+    updateApartmentWithId,
+    initialState
+  );
 
   return (
-    <form action={updateApartmentWithId}>
+    <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Apartment Name */}
         <div className="mb-4">
@@ -29,7 +37,16 @@ export default function Form({ apartment }: { apartment: ApartmentForm }) {
               <HomeModernIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
           </div>
+          <div id="name-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.name &&
+              state.errors.name.map((error: string) => (
+                <p className="mt-2 text-xs text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
         </div>
+
         {/* Apartment Description */}
         <div>
           <label
@@ -47,8 +64,23 @@ export default function Form({ apartment }: { apartment: ApartmentForm }) {
               defaultValue={apartment.description}
             />
           </div>
+          <div id="description-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.description &&
+              state.errors.description.map((error: string) => (
+                <p className="mt-2 text-xs text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
+        <div aria-live="polite" aria-atomic="true">
+          {state.message ? (
+            <p className="mt-2 text-sm text-red-500">{state.message}</p>
+          ) : null}
         </div>
       </div>
+
       <div className="mt-6 flex justify-end gap-4">
         <Link
           href={`/dashboard/${apartment.id}`}

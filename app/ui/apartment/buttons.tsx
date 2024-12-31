@@ -1,5 +1,5 @@
 import { deleteApartment } from '@/app/lib/actions';
-import { CheckCircleIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
 export function CreateApartment({ title }: { title: string }) {
@@ -29,9 +29,9 @@ export function DeleteApartment({ id }: { id: string }) {
     <form action={deleteApartmentWithId}>
       <button
         type="submit"
-        className="inline-flex items-center gap-x-1.5 rounded-md bg-cyan-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-cyan-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-600"
+        className="inline-flex items-center gap-x-1.5 rounded-md bg-cyan-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-cyan-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-600"
       >
-        <CheckCircleIcon aria-hidden="true" className="-ml-0.5 size-5" />
+        <TrashIcon aria-hidden="true" className="-ml-0.5 size-4" />
         Delete apartment
       </button>
     </form>

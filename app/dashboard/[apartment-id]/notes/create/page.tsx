@@ -1,4 +1,4 @@
-import { fetchApartment } from '@/app/lib/data';
+import { fetchApartment, fetchCategories } from '@/app/lib/data';
 import Form from '@/app/ui/note/create-note';
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 
@@ -8,6 +8,7 @@ export default async function Page(props: {
   const params = await props.params;
   const apartmentId = params['apartment-id'];
   const apartment = await fetchApartment(apartmentId);
+  const categories = await fetchCategories();
 
   return (
     <main>
@@ -22,7 +23,7 @@ export default async function Page(props: {
           },
         ]}
       />
-      <Form apartmentId={apartmentId} />
+      <Form apartmentId={apartmentId} categories={categories} />
     </main>
   );
 }
