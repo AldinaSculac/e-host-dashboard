@@ -38,11 +38,27 @@ const Note = NoteFormSchema.omit({
   apartment_id: true,
   created_at: true,
   updated_at: true,
+}).extend({
+  title: z.string().min(1, 'Title is required.'),
+  category_id: z.preprocess(
+    (value) => (value === null ? '' : value),
+    z.string().min(1, 'Select a category.')
+  ),
+  description: z.string().min(1, 'Description is required.'),
 });
 
 export type StateApartment = {
   errors?: {
     name?: string[];
+    description?: string[];
+  };
+  message?: string | null;
+};
+
+export type StateNote = {
+  errors?: {
+    title?: string[];
+    category_id?: string[];
     description?: string[];
   };
   message?: string | null;
@@ -60,7 +76,7 @@ export async function createApartment(
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to create an apartment.',
+      message: 'Missing fields. Failed to create an apartment.',
     };
   }
 
@@ -106,7 +122,7 @@ export async function updateApartment(
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to update an apartment.',
+      message: 'Missing fields. Failed to update an apartment.',
     };
   }
 
@@ -142,12 +158,25 @@ export async function deleteApartment(id: string) {
   redirect(`/dashboard`);
 }
 
-export async function createNote(id: string, formData: FormData) {
-  const { title, description, category_id } = Note.parse({
+export async function createNote(
+  id: string,
+  prevState: StateNote,
+  formData: FormData
+) {
+  const validatedFields = Note.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
     category_id: formData.get('categoryId'),
   });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing fields. Failed to create a note.',
+    };
+  }
+
+  const { title, description, category_id } = validatedFields.data;
   const created_at = new Date().toISOString().split('T')[0];
 
   try {
@@ -166,14 +195,23 @@ export async function createNote(id: string, formData: FormData) {
 export async function updateNote(
   noteId: string,
   apartmentId: string,
+  prevState: StateNote,
   formData: FormData
 ) {
-  const { title, description, category_id } = Note.parse({
+  const validatedFields = Note.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
     category_id: formData.get('categoryId'),
   });
 
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing fields. Failed to create a note.',
+    };
+  }
+
+  const { title, description, category_id } = validatedFields.data;
   const updated_at = new Date().toISOString().split('T')[0];
 
   try {
@@ -188,6 +226,7 @@ export async function updateNote(
     };
   }
 
+  revalidatePath(`/dashboard/${apartmentId}`);
   redirect(`/dashboard/${apartmentId}`);
 }
 

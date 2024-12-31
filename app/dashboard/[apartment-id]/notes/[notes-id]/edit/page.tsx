@@ -1,6 +1,6 @@
 import Form from '@/app/ui/note/edit-note';
 import Breadcrumbs from '@/app/ui/breadcrumbs';
-import { fetchApartment, fetchNote } from '@/app/lib/data';
+import { fetchApartment, fetchCategories, fetchNote } from '@/app/lib/data';
 
 export default async function Page(props: {
   params: Promise<{ 'apartment-id': string; 'notes-id': string }>;
@@ -10,6 +10,7 @@ export default async function Page(props: {
   const notetId = params['notes-id'];
   const apartment = await fetchApartment(apartmentId);
   const note = await fetchNote(notetId);
+  const categories = await fetchCategories();
 
   return (
     <main>
@@ -27,7 +28,7 @@ export default async function Page(props: {
           },
         ]}
       />
-      <Form note={note} />
+      <Form note={note} categories={categories} />
     </main>
   );
 }
